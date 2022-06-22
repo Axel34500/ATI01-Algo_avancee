@@ -377,3 +377,99 @@ Thread 2
 Thread 1 returns: 0
 Thread 2 returns: 0
 ```
+
+après modification du programme 
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+void *print_message_function(void *ptr);
+int main(){
+    pthread_t thread1, thread2;
+    char *message1 = "Thread 1";
+    char *message2 = "Thread 2";
+    int iret1, iret2;
+    /* Create independent threads each of which will execute function */
+    iret1 = pthread_create(&thread1, NULL, print_message_function, (void*)message1);
+    iret2 = pthread_create(&thread2, NULL, print_message_function, (void*)message2);
+
+    /* Wait till thread are complete before main continues. Unless we */
+    /* Wait we run the risk of executing an exit which will terminate */
+    /* the process and all threads before the threads have completed. */
+
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    printf("Thread 1 returns: %d\n", iret1);
+        printf ("PID 1 : %ld\n", getpid ()); 
+        printf ("PPID 1 : %ld\n", getppid ());
+    printf("Thread 2 returns: %d\n", iret2);
+        printf ("PID 2 : %ld\n", getpid ()); 
+        printf ("PPID 2 : %ld\n", getppid ());
+    exit(0);
+    return 0;
+}
+void *print_message_function(void *ptr)
+{
+    char *message;
+    message = (char *)ptr;
+    printf("%s \n", message);
+    return NULL ;
+}
+```
+résultat : 
+
+```c
+axel@axel-G3-3500:~/Github/ATI01-Algo_avancee/TP/TP07_processus_et_threads$ ./2.1
+Thread 1 
+Thread 2 
+Thread 1 returns: 0
+PID 1 : 68282
+PPID 1 : 68137
+Thread 2 returns: 0
+PID 2 : 68282
+PPID 2 : 68137
+```
+
+
+ce programme permet de faire exécuter 2 threads en cours d'éxécution de sorte qu'il sont indépendant
+
+### 3. On va voir si vous avez compris
+
+```c
+#include <pthread.h>
+#include <stdio.h>
+#define NTHREADS 12
+#define ARRAY_SIZE 10000000
+
+void *Hello(void *threadid)
+{
+    double A[ARRAY_SIZE];
+    int i;
+    sleep(3);
+    for (i = 0; i < ARRAY_SIZE; i++)
+    {
+        A[i] = i;
+    }
+    printf("%d: Hello World! %f\n", threadid, A[ARRAY_SIZE-1]);
+    pthread_exit(NULL);
+}
+int main(){
+    phread_t threads[NTHREADS];
+    int rc, t;
+    for (t = 0; t < NTHREADS; t++)
+    {
+        rc = pthread_create(&threads[t], NULL, Hello, (void *)t);
+        if (rc){
+            printf("ERROR; return code from pthread_create() is %d\n", rc);
+            exit(-1);
+        }
+    }
+    printf("Created %d threads\n", t);
+    pthread_exit(NULL);
+}
+```
+Ce programme ne peux pas fonctionner car le meme thread sont demandé puis redmander par une autre variable juste après alors quelle est indisponible et qui rend le programme non fonctionnel.
+
+pour cela il faut une variable [sémaphore](https://sites.uclouvain.be/SyllabusC/notes/Theorie/Threads/coordination.html) pour pouvoir vérouiller et dévérouiller les variables est ainsi le programme sera fonctionnel.
