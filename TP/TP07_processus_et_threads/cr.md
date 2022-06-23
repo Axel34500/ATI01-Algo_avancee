@@ -435,7 +435,18 @@ PPID 2 : 68137
 
 ce programme permet de faire exécuter 2 threads en cours d'éxécution de sorte qu'il sont indépendant
 
-### 3. On va voir si vous avez compris
+### 2.2 Débug de programmes utilisant des threads :
+```bash
+(gdb) info threads
+  Id   Target Id                               Frame 
+* 1    Thread 0x7ffff7d96740 (LWP 78740) "2.1" main () at 2.1.c:6
+```
+```bash
+(gdb) thread
+[Current thread is 1 (Thread 0x7ffff7d96740 (LWP 78740))]
+```
+
+## 3. On va voir si vous avez compris
 
 ```c
 #include <pthread.h>
